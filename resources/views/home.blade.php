@@ -8,7 +8,7 @@
                 <div class="panel-heading">Dashboard</div>
 
                 <div class="panel-body">
-                    You are logged in!
+                    You are logged in!! <br> {{ Route::currentRouteName() }}
                 </div>
             </div>
         </div>

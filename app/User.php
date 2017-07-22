@@ -10,6 +10,7 @@ use Lab404\AuthChecker\Interfaces\HasLoginsAndDevicesInterface;
 class User extends Authenticatable implements HasLoginsAndDevicesInterface
 {
     use Notifiable, HasLoginsAndDevices;  
+    
 
     /**
      * The attributes that are mass assignable.
@@ -17,7 +18,7 @@ class User extends Authenticatable implements HasLoginsAndDevicesInterface
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'avatar',
     ];
 
     /**
@@ -33,4 +34,5 @@ class User extends Authenticatable implements HasLoginsAndDevicesInterface
     {
         return $this->hasMany(SocialProvider::class);
     }
+
 }

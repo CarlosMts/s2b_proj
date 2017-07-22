@@ -11,6 +11,10 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // $this->call(UsersTableSeeder::class);
+        //call uses table seeder class
+  		$this->call('SpaceTypeTableSeeder');
+        //this message shown in your terminal after running db:seed command
+        $this->command->info("Users table seeded :)");
+       
     }
 }

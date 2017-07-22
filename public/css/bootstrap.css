@@ -241,6 +241,10 @@ th {
   .navbar {
     display: none;
   }
+
+  .navbar a {
+    text-transform:uppercase;
+  }
   .btn > .caret,
   .dropup > .btn > .caret {
     border-top-color: #000 !important;
@@ -560,6 +564,8 @@ th {
 }
 .glyphicon-ok-circle:before {
   content: "\e089";
+  color:#97B93D;
+  padding-right:10px;
 }
 .glyphicon-ban-circle:before {
   content: "\e090";
@@ -3988,7 +3994,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .nav > li > a:hover,
 .nav > li > a:focus {
   text-decoration: none;
-  background-color: #eee;
+  /*background-color: #eee;*/
 }
 .nav > li.disabled > a {
   color: #777;
@@ -4166,7 +4172,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 .navbar {
   position: relative;
   min-height: 50px;
-  margin-bottom: 20px;
+  margin-bottom: 0px;
   border: 1px solid transparent;
 }
 @media (min-width: 768px) {
@@ -4509,6 +4515,7 @@ select[multiple].input-group-sm > .input-group-btn > .btn {
 }
 .navbar-default .navbar-nav > li > a {
   color: #777;
+  text-transform: uppercase;
 }
 .navbar-default .navbar-nav > li > a:hover,
 .navbar-default .navbar-nav > li > a:focus {

@@ -103,10 +103,11 @@ class RegisterController extends Controller
         if(!$socialProvider)
         {
             //create a new user
-            $user = User::firstOrCreate(
-                ['email' => $socialUser->getEmail()],
-                ['name' => $socialUser->getName()]
-            );
+            $user = User::Create([
+                'name' => $socialUser->name,
+                'email' => $socialUser->email,
+                'avatar' => str_replace('http://','https://',$socialUser->avatar),
+                ]);
 
             $user->socialProviders()->create(
                 ['provider_id' => $socialUser->getId(), 'provider' => $provider]
@@ -117,6 +118,8 @@ class RegisterController extends Controller
 
             auth()->login($user);
 
-            return redirect('/home');
+            /*return redirect('/home');*/
+
+            return redirect()->back();
     }
 }

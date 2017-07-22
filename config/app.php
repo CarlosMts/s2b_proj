@@ -180,6 +180,13 @@ return [
         Lab404\AuthChecker\AuthCheckerServiceProvider::class,
 
         Laravel\Socialite\SocialiteServiceProvider::class,
+        Mcamara\LaravelLocalization\LaravelLocalizationServiceProvider::class,
+        Spatie\Newsletter\NewsletterServiceProvider::class,
+
+        'Collective\Html\HtmlServiceProvider',
+
+        Intervention\Image\ImageServiceProvider::class,
+        Collective\Html\HtmlServiceProvider::class,
 
     ],
 
@@ -230,6 +237,14 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
         'Socialite' => Laravel\Socialite\Facades\Socialite::class,
+        'LaravelLocalization'   => Mcamara\LaravelLocalization\Facades\LaravelLocalization::class,
+        'Newsletter' => Spatie\Newsletter\NewsletterFacade::class,
+
+        'Form' => 'Collective\Html\FormFacade',
+        'Html' => 'Collective\Html\HtmlFacade',
+        'Image' => Intervention\Image\Facades\Image::class,
+        'Input' => Illuminate\Support\Facades\Input::class,
+
 
     ],
 

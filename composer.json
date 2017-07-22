@@ -10,7 +10,11 @@
         "laravel/framework": "5.4.*",
         "laravel/socialite": "^3.0",
         "laravel/tinker": "~1.0",
-        "twbs/bootstrap": "^3.3"
+        "mcamara/laravel-localization": "1.2.*",
+        "spatie/laravel-newsletter": "^3.4",
+        "twbs/bootstrap": "^3.3",
+        "laravelcollective/html": "~5.0",
+        "intervention/image": "^2.3"
     },
     "require-dev": {
         "fzaninotto/faker": "~1.4",
