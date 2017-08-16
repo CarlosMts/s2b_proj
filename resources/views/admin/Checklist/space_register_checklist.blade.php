@@ -19,7 +19,7 @@
                         <label for="cl_is_checked{{ $cl->checklist_item_id }}"> {{ $cl->description }} </label>
                         <input id="cl_checklist_Value[{{ $cl->checklist_item_id }}]" type="hidden" class="form-control" name="cl_checklist_Value[{{ $cl->checklist_item_id }}]" value="">
                         @if ($cl->haveValue == 1)
-                            <input id="cl_checklist_Value[{{ $cl->checklist_item_id }}]" type="text" class="form-control" name="cl_checklist_Value[{{ $cl->checklist_item_id }}]" value="{{ old('cl_value') }}" placeholder="{{ $cl->label }}" style="width:120px; height: 25px; margin-left:10px;">
+                            <input id="cl_checklist_Value[{{ $cl->checklist_item_id }}]" type="text" class="form-control" name="cl_checklist_Value[{{ $cl->checklist_item_id }}]" value="{{ old('cl_value') }}" placeholder="{{ $cl->label }}" style="width:85px; height: 25px; margin-left:10px;">
                         @endif
                         </div>
                     </div>

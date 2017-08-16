@@ -17,6 +17,7 @@ use Illuminate\Support\Facades\Input;
 use File;
 use DB;
 use Image;
+use Illuminate\Support\Facades\Redirect;
 
 class SpaceController extends Controller
 {
@@ -124,6 +125,8 @@ class SpaceController extends Controller
         $space->name = $request->space_name;
         $space->type_id = $request->space_type;
         $space->address = $request->space_address;
+        $space->lat = $request->space_lat;
+        $space->lng = $request->space_lng;
         $space->zipcode = $request->space_zipcode;
         $space->city = $request->space_city;
         $space->country = $request->space_country;
@@ -133,11 +136,6 @@ class SpaceController extends Controller
 
         /* INSERT SPACE SCHEDULE INFO */
         for ($x = 1; $x <= 7; $x++) {
-
-            /*print_r('<pre> '. $x . ' ');
-            print_r($space->id . ' ');
-            print_r($request->is_all_day[$x] . ' ');
-            print_r($request->is_closed_day[$x] . '</pre>');*/
 
             $schedule = new SpaceSchedule;
 
@@ -304,11 +302,29 @@ class SpaceController extends Controller
         return view('search', ['list'=>$spaces, 'listimages'=>$spaceimages]);
     }
 
+    public function adminSearch()
+    {
+        $q = Input::get ( 'q' );
+
+        $space = DB::table('spaces')
+            -> join('companies', 'spaces.company_id', '=', 'companies.id')
+            -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
+            -> select('spaces.name as space_name','space_types.short_name as type_name','spaces.city as city','companies.name as company_name','companies.person as person','companies.phone_number as phone_number')
+            -> where('spaces.name', 'LIKE','%'.$q.'%')->orWhere('companies.name','LIKE','%'.$q.'%')
+            -> OrderBy('spaces.name')->Paginate(15);
+
+
+        //$space = Company::where('name','LIKE','%'.$q.'%')->orWhere('person','LIKE','%'.$q.'%')->get();
+        if(count($space) > 0)
+            return view('search-results')->withDetails($space)->withQuery($q);
+        else return view('search-results')->withMessage('No details found for "'. $q .'". Try to search again!');
+    }
+
     public function listOwnedSpaces() 
     {
         $spaces = DB::table('spaces')
             -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
-            -> select('spaces.id','space_types.short_name','spaces.name','spaces.city')
+            -> select('spaces.id','space_types.short_name','spaces.name','spaces.city','spaces.admin_reviewed')
             -> where('user_id', '=', Auth::user()->id)
             -> OrderBy('id')->Paginate(15);
 
@@ -340,7 +356,7 @@ class SpaceController extends Controller
 
         $spaceinfo = DB::table('spaces')
             -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
-            -> select('spaces.id','space_types.name as type_name','spaces.name','spaces.address','spaces.zipcode','spaces.city','spaces.description')
+            -> select('spaces.id','space_types.name as type_name','spaces.name','spaces.address','spaces.zipcode','spaces.city', 'spaces.lat as space_lat', 'spaces.lng as space_lng', 'spaces.description', 'spaces.admin_reviewed')
             -> where('spaces.id', '=', $id)
             ->get();
 
@@ -363,12 +379,15 @@ class SpaceController extends Controller
 
         $spacechecklist = DB::table('space_checklist_items')
             -> join('checklist_items', 'space_checklist_items.stype_checklist_item_id', '=', 'checklist_items.id')
-            -> select('checklist_items.description','checklist_items.label','space_checklist_items.value', 'space_checklist_items.status')
+            -> select('checklist_items.description','checklist_items.label','space_checklist_items.value', 'space_checklist_items.value as haveValue', 'space_checklist_items.status')
             -> where('space_checklist_items.space_id', '=', $id)
             ->get();
 
            // dd($spaceprices);
-        return view('space', ['spaceinfo'=>$spaceinfo, 'spaceimages'=>$spaceimages, 'spaceschedule'=>$spaceschedule, 'spaceprices'=>$spaceprices ,'spacechecklist'=>$spacechecklist ]);
+
+         $spacecomments = null;
+            
+        return view('space', ['spaceinfo'=>$spaceinfo, 'spaceimages'=>$spaceimages, 'spaceschedule'=>$spaceschedule, 'spaceprices'=>$spaceprices, 'spacechecklist'=>$spacechecklist, 'spacecomments'=>$spacecomments ]);
     }
 
     /**
@@ -379,7 +398,53 @@ class SpaceController extends Controller
      */
     public function edit($id)
     {
-        //
+        $spacecompany = DB::table('spaces')
+            -> join('companies', 'spaces.company_id', '=', 'companies.id')
+            -> select('companies.name as company_name','companies.address as company_address','companies.zipcode as company_zipcode','companies.city as company_city','companies.country as company_country','companies.nif as company_nif','companies.person as company_person','companies.phone_number as company_phone_number')
+            -> where('spaces.id', '=', $id)
+            ->get();
+
+        $currentspacetype = DB::table('spaces')
+            ->join('space_types','spaces.type_id', '=', 'space_types.id')
+            ->select('space_types.id')
+            ->where('spaces.id', '=', $id)
+            ->get();
+
+        $spacetypes = DB::table('space_types')
+            -> select('id', 'name')
+            -> where('space_types.id', '!=', $currentspacetype[0]->id )
+            -> get();
+
+        $spaceinfo = DB::table('spaces')
+            -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
+            -> select('spaces.id','space_types.id as space_type_id', 'space_types.name as space_type', 'spaces.name as space_name','spaces.address as space_address','spaces.zipcode as space_zipcode','spaces.city as space_city', 'spaces.country as space_country', 'spaces.lat as space_lat', 'spaces.lng as space_lng', 'spaces.description as space_description')
+            -> where('spaces.id', '=', $id)
+            ->get();
+
+        $spaceimages = DB::table('space_images')
+            -> select('space_images.space_id','space_images.img_name','space_images.img_thumb')
+            -> where('space_images.space_id', '=', $id)
+            ->get();
+
+        $spaceschedule = DB::table('space_schedules')
+            -> select('space_schedules.week_day','space_schedules.open_hour','space_schedules.close_hour', 'space_schedules.all_day', 'space_schedules.closed')
+            -> where('space_schedules.space_id', '=', $id)
+            -> orderBy('space_schedules.id')
+            ->get();
+
+        $spaceprices = DB::table('space_prices')
+            -> select('space_prices.type', 'space_prices.hour', 'space_prices.hour4', 'space_prices.hour8', 'space_prices.month')
+            -> where('space_prices.space_id', '=', $id)
+            -> orderBy('space_prices.type')
+            ->get();
+
+        $spacechecklist = DB::table('space_checklist_items')
+            -> join('checklist_items', 'space_checklist_items.stype_checklist_item_id', '=', 'checklist_items.id')
+            -> select('checklist_items.description','space_checklist_items.stype_checklist_item_id as item_id','checklist_items.label','space_checklist_items.value', 'space_checklist_items.value as haveValue', 'space_checklist_items.status')
+            -> where('space_checklist_items.space_id', '=', $id)
+            ->get();
+
+        return view('space-edit', ['spacecompany'=>$spacecompany, 'spaceinfo'=>$spaceinfo, 'spacetypes'=>$spacetypes, 'spaceimages'=>$spaceimages, 'spaceschedule'=>$spaceschedule, 'spaceprices'=>$spaceprices ,'spacechecklist'=>$spacechecklist ]);
     }
 
     /**
@@ -391,7 +456,101 @@ class SpaceController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $space = Space::findOrFail($id);
+
+        //$company = Company::findOrFail($id);
+        $company = Company::where('id', '=', $space->company_id)->first();
+        $company->name = $request->company_name;
+        $company->address = $request->company_address;
+        $company->zipcode = $request->company_zipcode;
+        $company->city = $request->company_city;
+        $company->nif = $request->company_nif;
+        $company->person = $request->company_person;
+        $company->phone_number = $request->company_phone_number;
+        $company->save();
+
+        $space_spaceType = $request->space_type;
+
+        $space->type_id = $space_spaceType;
+        $space->name = $request->space_name;
+        $space->address = $request->space_address;
+        $space->zipcode = $request->space_zipcode;
+        $space->city = $request->space_city;
+        $space->country = $request->space_country;
+        $space->lat = $request->space_lat;
+        $space->lng = $request->space_lng;
+        $space->description = $request->space_description;
+        $space->save();
+
+        /* UPDATE CHECKLIST INFO */ 
+        $checklists = SpaceChecklistItem::where('space_id', '=', $id);
+        $checklists->delete();
+
+        $checklist_count = DB::table('stype_checklist_items')
+                ->where('type_id', $space_spaceType)
+                ->where('check', '=', 1)
+                ->count();
+        
+        $cl_data = Input::get('cl_item_id');
+        // retorna um array com os items que estão checkados ou não (0 e 1)
+
+        for ($x = 1; $x <= $checklist_count; $x++) {
+            $space_checklist = new SpaceChecklistItem;
+
+            $getCLITEM = $request->getCLID[$x-1];
+            //dd($getCLITEM);
+            $cl_check = $cl_data[ $getCLITEM ];
+            //dd($cl_check);
+            $space_checklist->space_id = $id;
+            $space_checklist->stype_checklist_item_id = $getCLITEM;
+            $space_checklist->value = $request->cl_checklist_Value[$getCLITEM];
+            $space_checklist->status = $cl_check;
+            $space_checklist->user_id = Auth::user()->id;
+            $space_checklist->save();
+        } 
+
+        /* UPDATE SPACE SCHEDULE INFO */
+
+        $data_is_all_day = Input::get('is_all_day');
+        $is_closed_day = Input::get('is_closed_day');
+
+        for ($x = 1; $x <= 7; $x++) {
+
+            $schedule = SpaceSchedule::where('space_id', '=', $id)
+                ->where('week_day', '=', $x)
+                ->first();
+
+            $schedule->user_id = Auth::user()->id;
+            $schedule->space_id = $id;
+            $schedule->week_day = $x;
+            $schedule->open_hour = $request->open[$x];
+            $schedule->close_hour = $request->close[$x];
+            $schedule->all_day = $data_is_all_day[$x];
+            $schedule->closed = $is_closed_day[$x];
+            $schedule->save();
+        } 
+
+        /* INSERT SPACE HOURLY PRICE INFO */
+        for ($x = 1; $x <= 3; $x++) {
+
+            $price = SpacePrice::where('space_id', '=', $id)
+                    ->where('space_prices.type','=', $x)
+                    ->orderBy('space_prices.type')
+                    ->first();
+
+            $price->space_id = $space->id;
+            $price->user_id = Auth::user()->id;
+            $price->type = $x;
+            $price->hour = $request->hour_price[$x];
+            $price->hour4 = $request->hour4_price[$x];
+            $price->hour8 = $request->hour8_price[$x];
+            $price->month = $request->month_price[$x];
+            $price->save();
+        } 
+
+
+        return redirect()->route('myspaces')
+                        ->with('success','Your space ' . $request->space_name . ' was updated successfully');
     }
 
     /**
@@ -456,41 +615,38 @@ class SpaceController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function adminSpacePreview($id)
-    {
-        //$spaceinfo = Space::find($id);
+    public function showSpaceCheckList($spaceID, $typeID)
+    {   
+        $currentspacetype = DB::table('spaces')
+        ->join('space_types','spaces.type_id', '=', 'space_types.id')
+        ->select('space_types.id')
+        ->where('spaces.id', '=', $spaceID)
+        ->get();
 
-        $spaceinfo = DB::table('spaces')
-            -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
-            -> select('spaces.id','space_types.name as type_name','spaces.name','spaces.address','spaces.zipcode','spaces.city','spaces.description')
-            -> where('spaces.id', '=', $id)
-            ->get();
-
-        $spaceimages = DB::table('space_images')
-            -> select('space_images.space_id','space_images.img_name','space_images.img_thumb')
-            -> where('space_images.space_id', '=', $id)
-            ->get();
-
-        $spaceschedule = DB::table('space_schedules')
-            -> select('space_schedules.week_day','space_schedules.open_hour','space_schedules.close_hour', 'space_schedules.all_day', 'space_schedules.closed')
-            -> where('space_schedules.space_id', '=', $id)
-            -> orderBy('space_schedules.id')
-            ->get();
-
-        $spaceprices = DB::table('space_prices')
-            -> selectRaw('space_prices.type, ifnull(space_prices.hour,"n/a") as hour, ifnull(space_prices.hour4,"n/a") as hour4, ifnull(space_prices.hour8,"n/a") as hour8, ifnull(space_prices.month,"n/a") as month, ifnull(space_prices.hour,0) + ifnull(space_prices.hour4,0) + ifnull(space_prices.hour8,0) + ifnull(space_prices.month,0) AS have_price_check')
-            -> where('space_prices.space_id', '=', $id)
-            -> orderBy('space_prices.type')
-            ->get();
-
+        if( $currentspacetype[0]->id == $typeID ) {
+        // CHECKLIST DO ESPAÇO JÁ REGISTADO
         $spacechecklist = DB::table('space_checklist_items')
             -> join('checklist_items', 'space_checklist_items.stype_checklist_item_id', '=', 'checklist_items.id')
-            -> select('checklist_items.description','checklist_items.label','space_checklist_items.value', 'space_checklist_items.status')
-            -> where('space_checklist_items.space_id', '=', $id)
+            -> select('checklist_items.description','space_checklist_items.stype_checklist_item_id as item_id','checklist_items.label','space_checklist_items.value', 'space_checklist_items.value as haveValue', 'space_checklist_items.status')
+            -> where('space_checklist_items.space_id', '=', $spaceID)
             ->get();
 
-           // dd($spaceprices);
-        return view('Admin/preview_space', ['spaceinfo'=>$spaceinfo, 'spaceimages'=>$spaceimages, 'spaceschedule'=>$spaceschedule, 'spaceprices'=>$spaceprices ,'spacechecklist'=>$spacechecklist ]);
+        } else {
+
+        //SE ALTERAR O TIPO DE ESPAÇO, TEM DE REGISTAR NOVA INFORMAÇÃO! LOAD DA CHECKLIST DE CADA TIPO DE ESPAÇO
+        $spacechecklist = DB::table('checklist_items')
+            ->leftJoin('stype_checklist_items', function($join) use ($typeID)
+                    {
+                        $join->on('checklist_items.id', '=', 'stype_checklist_items.checklist_item_id')
+                             ->on('stype_checklist_items.type_id', '=', DB::raw($typeID));
+
+                    })
+            ->select('checklist_items.description','checklist_items.haveValue as haveValue', DB::raw('"" as value'), 'checklist_items.label', 'stype_checklist_items.checklist_item_id as item_id', DB::raw('0 as status'))
+            -> where('stype_checklist_items.check', '=', 1)
+            ->get();
+        }
+        //dd($spacetype_checklist);
+        return view('Admin/Checklist/space_edit_checklist')->with('spacechecklist', $spacechecklist);
     }
 
     /**
@@ -505,14 +661,15 @@ class SpaceController extends Controller
         $space->admin_reviewed = 1;
         $space->save();
 
-        $spaces = DB::table('spaces')
-            -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
-            -> join('companies', 'spaces.company_id', '=', 'companies.id')
-            -> select('spaces.id', 'spaces.name', 'spaces.city', 'space_types.short_name', 'companies.name as company', 'companies.person', 'companies.phone_number')
-            -> where('admin_reviewed', '=', 0)
-            -> OrderBy('id')->Paginate(15);
+        return redirect()->route('reviewspaces')->with('message', $space->name . ' accepted successfully!');
+        //return back()->with('success','Item created successfully!');
+        //return Redirect::route('reviewspaces')->with('message', 'Login Failed');
 
-        return view('Admin/space_for_review',compact('spaces'));
+        // \Session::flash('flash_message', $space->name . ' accepted successfully!');
+
+        // return redirect()->route("reviewspaces");
+
+
     }
 
 }

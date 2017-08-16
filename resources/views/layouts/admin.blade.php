@@ -45,13 +45,26 @@
           <!-- sidebar-leftmenu: style can be found in sidebar-leftmenu.less -->
           <section class="sidebar-leftmenu skin-blue" style="height: auto;">
             <!-- sidebar-leftmenu menu: : style can be found in sidebar-leftmenu.less -->
+
             <ul class="sidebar-leftmenu-menu skin-blue">
-              <li class="active treeview">
+              
+
+              @if (Auth::user()->is_admin>=10)
+              <form action="{{ route('admin-search') }}" method="get" class="sidebar-form">
+              <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search space or company name">
+                    <span class="input-group-btn">
+                      <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                      </button>
+                    </span>
+              </div>
+            </form>
+            <li class="header">MAIN NAVIGATION</li>
+              <li class="treeview">
                 <a href="{{ route('admin') }}">
                   <i class="fa fa-dashboard"></i> <span>Dashboard</span>
                 </a>
               </li>
-              @if (Auth::user()->is_admin>=10)
               <li class="treeview">
                 <a href="#">
                   <span>Add</span>

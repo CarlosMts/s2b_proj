@@ -20,6 +20,8 @@ class CreateSpacesTable extends Migration
             $table->string('name');
             $table->integer('type_id')->unsigned()->index();
             $table->string('address')->default('');
+            $table->double('lat',20,10);
+            $table->double('lng',20,10);
             $table->string('zipcode')->default('');
             $table->string('city')->default('');
             $table->string('country')->default('');

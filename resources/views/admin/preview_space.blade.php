@@ -137,6 +137,7 @@
                 <p>{{ $spaceinfo[0]->zipcode }}, {{ $spaceinfo[0]->city }}</p>
 
                 {{ Form::hidden('invisible', $spaceinfo[0]->id, array('id' => 'spaceID' )) }}
+                {{ Form::hidden('invisible', $spaceinfo[0]->name, array('id' => 'spaceNAME' )) }}
             </div>
         </section>
 
@@ -303,23 +304,38 @@
         
         </section>
 
-        <section id="space-calendar-section">
+        <!-- <section id="space-calendar-section">
             <div id="space-container-inside">
             </div>
-        </section>
+        </section> -->
 
+        @if ($spacecomments != null)
         <section id="space-comments-section">
             <div id="space-container-inside">
                 <h2>Comments</h2>
             </div>
         </section>
+        @endif
+
+        <section id="space-map-section">
+            <div id="spaceMap"></div>
+            <div>
+                <input type="hidden" class="form-control" id="lat" name="space_lat" value="{{ $spaceinfo[0]->space_lat }}" >
+                <input type="hidden" class="form-control" id="lng" name="space_lng" value="{{ $spaceinfo[0]->space_lng }}" >
+            </div>
+        </section>
 
         @if (Auth::user()->is_admin>=10)
         <div class="panel-footer">
+
         <div class="row">
             <div class="col col-xs-12">
                 <div class="pull-right" style="padding-right:20px;">
-                    <button type="button" class="btn btn-primary" id="accept-btn">Accept</button>
+                    {!! Form::open(['method' => 'PUT','route' => ['acceptspace', $spaceinfo[0]->id],'style'=>'display:inline']) !!}
+
+                        <button type="submit" class="btn btn-primary" id="accept-btn">Accept</button>
+                    {{ Form::close() }}
+                    
 
                     <a href="{{ url()->previous() }}" class="btn btn-default">Back</a>
                 </div>
@@ -368,8 +384,11 @@ function showSlides(n) {
   captionText.innerHTML = dots[slideIndex-1].alt;
 }
 
-
 </script>
 
+<script src="{{ asset('/js/google-maps-space.js') }}"></script>
+<script async defer
+    src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjGoTuUHrw1uzD0n-fOEq7URdFA1ALbcE&callback=initMapSpace">
+</script>
 
 @endsection

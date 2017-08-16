@@ -19,19 +19,20 @@
 
 			
 		@foreach ($list as $space)
-			<a href="{{ url('space/'.$space->id) }}">
+			
 			<div class="space-object">
 				<div class="space-object-gallery">
 					<div class="s2-content s2-display-container slider" id="div{{$space->id}}">
 						
 						{{ Form::hidden('spaceID', $space->id, array('id' => 'space_id')) }}
 
+						<a href="{{ url('space/'.$space->id) }}">
 						@foreach ($listimages as $space_images)
 							@if ($space->id == $space_images->id)
 							  	<img class="mySlides" src="{{ $space_images->img_thumb }}">
 						  	@endif
 					  	@endforeach
-						
+						</a>
 
 						<button class="s2-button s2-display-left s2-black" onclick="plusDivs(this, -1)">&#10094;</button>
 						<button class="s2-button s2-display-right s2-black" onclick="plusDivs(this, 1)">&#10095;</button>
@@ -39,21 +40,23 @@
 					</div>
 
 					<div class="space-object-info">
-						<div class="space_name">{{$space->name}} - {{$space->short_name}}</div>
-						<div class="space_city">{{$space->city}}</div>
-						<div class="space_rate">
-							<i class="fa fa-star" aria-hidden="true"></i>
-							<i class="fa fa-star" aria-hidden="true"></i>
-							<i class="fa fa-star" aria-hidden="true"></i>
-							<i class="fa fa-star" aria-hidden="true"></i>
-							<i class="fa fa-star-o" aria-hidden="true"></i>
-							(3)
-						</div>
+						<a href="{{ url('space/'.$space->id) }}">
+							<div class="space_name">{{$space->name}} - {{$space->short_name}}</div>
+							<div class="space_city">{{$space->city}}</div>
+							<div class="space_rate">
+								<i class="fa fa-star" aria-hidden="true"></i>
+								<i class="fa fa-star" aria-hidden="true"></i>
+								<i class="fa fa-star" aria-hidden="true"></i>
+								<i class="fa fa-star" aria-hidden="true"></i>
+								<i class="fa fa-star-o" aria-hidden="true"></i>
+								(3)
+							</div>
+						</a>
 					</div>
 					
 				</div>
 			</div>
-			</a>
+			
 		@endforeach
 		
 

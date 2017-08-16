@@ -11,9 +11,6 @@
 |
 */
 
-
-
-
 Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => [ 'localeSessionRedirect', 'localizationRedirect' ] ], function()
 {
 	/** ADD ALL LOCALIZED ROUTES INSIDE THIS GROUP **/
@@ -52,22 +49,23 @@ Route::group(['prefix' => LaravelLocalization::setLocale(), 'middleware' => [ 'l
 				Route::get('refreshSpaceTypeChecklistTable/{itemID}', 'Admin\SpaceTypeChecklistController@refreshSpaceTypeChecklistTable')->name('refreshSpaceTypeChecklistTable');
 
 				Route::get('/review-spaces', 'SpaceController@listSpacesForReview')->name('reviewspaces');
-				Route::get('/preview-spaces/{ID}', 'SpaceController@adminSpacePreview')->name('previewspaces');
 				Route::put('/accept-space/{ID}', 'SpaceController@acceptSpace')->name('acceptspace');
 
-				
+				Route::any('/admin-search', 'SpaceController@adminSearch')->name('admin-search');
                  
    	});
 
 	Route::group(['middleware' => ['auth']], function()
 	{
 	    Route::resource('space', 'SpaceController');
+	    Route::patch('space-update/{ID}', 'SpaceController@update')->name('space-update');
 	    Route::post('uploadPhotos', 'SpaceController@uploadFiles'); 
 	    Route::get('/myspaces', 'SpaceController@listOwnedSpaces')->name('myspaces');
 
 	});
 
 	Route::get('showCheckList/{itemID}', 'SpaceController@showCheckList')->name('showCheckList');
+	Route::get('showSpaceCheckList/{spaceID}/{typeID}', 'SpaceController@showSpaceCheckList')->name('showSpaceCheckList');
 
 	
 

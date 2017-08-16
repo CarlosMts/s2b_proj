@@ -11,11 +11,6 @@
         </div>
     </div>
 
-    @if ($message = Session::get('success'))
-        <div class="alert alert-success">
-            <p>{{ $message }}</p>
-        </div>
-    @endif
     <div class="panel panel-default panel-table">
         <div class="panel-body">
 
@@ -40,7 +35,7 @@
         <td>{{ $sp->person }}</td>
         <td>{{ $sp->phone_number }}</td>
         <td align="center">
-            <a class="btn btn-default" href="{{ route('previewspaces',$sp->id) }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
+            <a class="btn btn-default" href="{{ url('space/'.$sp->id) }}"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span></a>
             <a class="btn btn-default" href="#"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span></a>
             <!-- <a class="btn btn-danger"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span></a> -->
             {!! Form::open(['method' => 'DELETE','route' => ['space.destroy', $sp->id],'style'=>'display:inline']) !!}
@@ -55,5 +50,22 @@
     </div>
 
     {!! $spaces->render() !!}
+
+    @if (count($errors) > 0)
+        <div class="alert alert-danger">
+            <strong>Whoops!</strong> There were some problems with your input.<br><br>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    @if ($message = Session::get('success'))
+        <div class="alert alert-success">
+            <p>{{ $message }}</p>
+        </div>
+    @endif
 
 @endsection

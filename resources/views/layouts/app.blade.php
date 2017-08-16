@@ -41,28 +41,7 @@
     <!-- Scripts -->
 
     <script src="{{ asset('js/app.js') }}"></script>
-    <script type="text/javascript">
-    // ADMIN - Accept Space
-    $(document).on('click', '#accept-btn', function() {
-
-        id = $('#spaceID').val();
-
-        var url = '{{ route("acceptspace", ":id") }}';
-        url = url.replace(':id', id);
-
-// POST  | admin/accept-space/{ID}  | acceptspace  | App\Http\Controllers\SpaceController@acceptSpace 
-        $.ajax({
-            type: 'PUT',
-            url: url, 
-            data: {
-                '_token': $('input[name=_token]').val(),
-            },
-            success: function(data) {
-
-            }
-        });
-    });
-    </script>
+    
 
 </body>
 </html>

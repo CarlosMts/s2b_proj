@@ -3,7 +3,8 @@
 @section('content')
 <link href="{{ asset('css/dropzone/dropzone.css') }}" rel="stylesheet">
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjGoTuUHrw1uzD0n-fOEq7URdFA1ALbcE&libraries=places"></script>
+
+
 
 <script>
 
@@ -84,6 +85,7 @@ $(document).ready(function() {
             </li>
         </ul>
         <form class="form-horizontal" role="form" method="POST" action="{{ route('space.store') }}" enctype="multipart/form-data">
+        
         {{ csrf_field() }}
             
             
@@ -141,11 +143,22 @@ $(document).ready(function() {
                     </div>
 
                   <div class="col-sm-6">
-                        <input id="google-company" type="text" class="form-control" placeholder="City" required autofocus/>
+                        @if(is_null($company))
+                        <input id="google-company" type="text" class="form-control" placeholder="City, Country" required autofocus/>
 
-                                {{ Form::hidden('company_city', '', array('id' => 'company_city')) }}
+                        {{ Form::hidden('company_city', '', array('id' => 'company_city')) }}
 
-                                {{ Form::hidden('company_country', '', array('id' => 'company_country')) }}
+                        {{ Form::hidden('company_country', '', array('id' => 'company_country')) }}
+
+                        @else 
+                        <input id="google-company" type="text" class="form-control" placeholder="City, Country" value="{{ $company->city . ', ' . $company->country }}"  required autofocus/>
+
+                        {{ Form::hidden('company_city', $company->city, array('id' => 'company_city')) }}
+
+                        {{ Form::hidden('company_country', $company->country, array('id' => 'company_country')) }}
+                        @endif
+
+                                
                   </div>
                 </div>
 
@@ -207,9 +220,10 @@ $(document).ready(function() {
             <section id="space" class="space-section">
             <div class="container">
                 <h2>Space Info</h2>
+                <div class="container-half">
                     <div class="form-group">
-                        <div class="col-lg-8">
-                            
+                        <div class="col-lg-10">
+                                
                             <input id="space_name" type="text" class="form-control" name="space_name" value="{{ old('space_name') }}" placeholder="Space name" required autofocus>
 
                             @if ($errors->has('space_name'))
@@ -221,53 +235,62 @@ $(document).ready(function() {
                         </div>
                     </div>
 
-                <div class="form-group">
-                    <div class="col-lg-4">
+                    <div class="form-group">
+                        <div class="col-lg-6">
 
-                    <select class="form-control" name="space_type" id="space_type_select" required autofocus>
-                            <option value="" selected>Space Type</option>
-                        @foreach ($spacetypes as $key => $sp)
-                            <option value="{{ $sp->id }}">{{ $sp->name }}</option>
-                        @endforeach
+                        <select class="form-control" name="space_type" id="space_type_select" required autofocus>
+                                <option value="" selected>Space Type</option>
+                            @foreach ($spacetypes as $key => $sp)
+                                <option value="{{ $sp->id }}">{{ $sp->name }}</option>
+                            @endforeach
 
-                    </select>
+                        </select>
 
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+
+                        <div class="col-sm-10">
+                            <input id="space_address" type="text" class="form-control" name="space_address" value="{{ old('space_address') }}" placeholder="Space Address" required autofocus>
+
+                            @if ($errors->has('space_address'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('space_address') }}</strong>
+                                </span>
+                            @endif
+                        
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="col-sm-4">
+                            <input id="space_zipcode" type="text" class="form-control" name="space_zipcode" value="{{ old('space_zipcode') }}" placeholder="C. Postal" required autofocus>
+
+                            @if ($errors->has('space_zipcode'))
+                                <span class="help-block">
+                                    <strong>{{ $errors->first('space_zipcode') }}</strong>
+                                </span>
+                            @endif
+                        </div>
+
+                      <div class="col-sm-6">
+                            <input id="google-space" type="text" class="form-control" placeholder="City, Country" required autofocus/>
+
+                            {{ Form::hidden('space_city', '', array('id' => 'space_city')) }}
+
+                            {{ Form::hidden('space_country', '', array('id' => 'space_country')) }}
+                      </div>
                     </div>
                 </div>
-
-                <div class="form-group">
-
-                    <div class="col-sm-8">
-                        <input id="space_address" type="text" class="form-control" name="space_address" value="{{ old('space_address') }}" placeholder="Space Address" required autofocus>
-
-                        @if ($errors->has('space_address'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('space_address') }}</strong>
-                            </span>
-                        @endif
-                    
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <div class="col-sm-2">
-                        <input id="space_zipcode" type="text" class="form-control" name="space_zipcode" value="{{ old('space_zipcode') }}" placeholder="C. Postal" required autofocus>
-
-                        @if ($errors->has('space_zipcode'))
-                            <span class="help-block">
-                                <strong>{{ $errors->first('space_zipcode') }}</strong>
-                            </span>
-                        @endif
-                    </div>
-
-                  <div class="col-sm-6">
-                        <input id="google-space" type="text" class="form-control" placeholder="City" required autofocus/>
-
-                        {{ Form::hidden('space_city', '', array('id' => 'space_city')) }}
-
-                        {{ Form::hidden('space_country', '', array('id' => 'space_country')) }}
+                <div class="container-half">
+                  <div id="map"></div>
+                  <div class="form-group">
+                        <input type="hidden" class="form-control" id="lat" name="space_lat" value="{{ old('space_lat') }}" >
+                        <input type="hidden" class="form-control" id="lng" name="space_lng" value="{{ old('space_lng') }}" >
                   </div>
                 </div>
+                
 
                 <div class="form-group">
                     <div class="col-sm-12">
@@ -814,272 +837,39 @@ $(document).ready(function() {
 
 </div>
 
-
-<script>
-google.maps.event.addDomListener(window, 'load', initialize);
-
-function initialize() {
-    var company_input = document.getElementById('google-company');
-    var company_autocomplete = new google.maps.places.Autocomplete(company_input);
-    company_autocomplete.addListener('place_changed', function () {
-    var company_place = company_autocomplete.getPlace();
-    // place variable will have all the information you are looking for.
-    // console.log(place.geometry['location'].lat());
-    // console.log(place.geometry['location'].lng());
-    var get_citycompany = document.getElementById("google-company").value;
-    var company_input_split = get_citycompany.split(',');
-    
-    $('#company_city').val(company_input_split[0].trim());
-
-    $('#company_country').val(company_input_split[1].trim());
-
-
-    });
-}
-</script>
-
-<script>
-google.maps.event.addDomListener(window, 'load', initialize);
-
-function initialize() {
-
-    var space_input = document.getElementById('google-space');
-    var space_autocomplete = new google.maps.places.Autocomplete(space_input);
-    space_autocomplete.addListener('place_changed', function () {
-    var space_place = space_autocomplete.getPlace();
-    // place variable will have all the information you are looking for.
-
-    var get_city = document.getElementById("google-space").value;
-    var space_input_split = get_city.split(',');
-    //console.log(space_input_split[0].trim());
-    //console.log(space_input_split[1].trim());
-    
-    $('#space_city').val(space_input_split[0].trim());
-
-    $('#space_country').val(space_input_split[1].trim());
-    });
-}
-</script>
-
-
-
-
-
-
 <!-- Scrolling Nav JavaScript -->
 <!-- Input masks -->
 
 <script type="text/javascript" src="{{ asset('/js/jquery.mask.min.js') }}"></script>
 
-<script type="text/javascript">
-    (function( $ ) {
-        $(function() {
-            $('.openHour').mask('00:00');
-            $('.closeHour').mask('00:00');
-            $('.cep').mask('0000-000');
-            $('.phone').mask('000 000 000');
-            $('.money').mask('0.000,00', {reverse: true});
-      });
-    })(jQuery);
+<script src="{{ asset('/js/google-city_input.js') }}"></script>
+<script src="{{ asset('/js/google-maps.js') }}"></script>
 
-
-    $(document).ready(function() {
-        $(function(){
-            $('.openHour').focus( function() {
-                $(this).val('');
-            });
-
-            $(".openHour").blur( function() {
-                if ( $(this).val()=="") {
-                    $(this).val('09:00');
-                } 
-            });
-
-            $('.closeHour').focus( function() {
-                $(this).val('');
-            });
-
-            $(".closeHour").blur( function() {
-                if ( $(this).val()=="") {
-                    $(this).val('18:00');
-                } 
-            });
-
-            /*$(document).ready(function () {
-                $("#clases").change(function () {
-                    $("#descripcion").toggle();
-                });
-            });*/
-
-        });
-    });
-
-
-    $(document).ready(function() {
-        // SEGUNDA hide/show input hour 
-        document.getElementById('is_all_day1').onchange = function() {
-            document.getElementById('sched1').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed1").prop("checked", false);
-            $("#open1").val('00:00');
-            $("#close1").val('24:00');
-        };
-        document.getElementById('is_closed1').onchange = function() {
-            document.getElementById('sched1').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day1").prop("checked", false);
-            $("#open1").val('09:00');
-            $("#close1").val('18:00');
-        };
-
-        // TERCA hide/show input hour 
-        document.getElementById('is_all_day2').onchange = function() {
-            document.getElementById('sched2').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed2").prop("checked", false);
-            $("#open2").val('00:00');
-            $("#close2").val('24:00');
-        };
-        document.getElementById('is_closed2').onchange = function() {
-            document.getElementById('sched2').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day2").prop("checked", false);
-            $("#open2").val('09:00');
-            $("#close2").val('18:00');
-        };
-
-        // QUARTA hide/show input hour 
-        document.getElementById('is_all_day3').onchange = function() {
-            document.getElementById('sched3').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed3").prop("checked", false);
-            $("#open3").val('00:00');
-            $("#close3").val('24:00');
-        };
-        document.getElementById('is_closed3').onchange = function() {
-            document.getElementById('sched3').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day3").prop("checked", false);
-            $("#open3").val('09:00');
-            $("#close3").val('18:00');
-        };
-
-        // QUINTA hide/show input hour 
-        document.getElementById('is_all_day4').onchange = function() {
-            document.getElementById('sched4').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed4").prop("checked", false);
-            $("#open4").val('00:00');
-            $("#close4").val('24:00');
-        };
-        document.getElementById('is_closed4').onchange = function() {
-            document.getElementById('sched4').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day4").prop("checked", false);
-            $("#open4").val('09:00');
-            $("#close4").val('18:00');
-        };
-
-        // SEXTA hide/show input hour 
-        document.getElementById('is_all_day5').onchange = function() {
-            document.getElementById('sched5').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed5").prop("checked", false);
-            $("#open5").val('00:00');
-            $("#close5").val('24:00');
-        };
-        document.getElementById('is_closed5').onchange = function() {
-            document.getElementById('sched5').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day5").prop("checked", false);
-            $("#open5").val('09:00');
-            $("#close5").val('18:00');
-        };
-
-        // SABADO hide/show input hour 
-        document.getElementById('is_all_day6').onchange = function() {
-            document.getElementById('sched6').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed6").prop("checked", false);
-            $("#open6").val('00:00');
-            $("#close6").val('24:00');
-        };
-        document.getElementById('is_closed6').onchange = function() {
-            document.getElementById('sched6').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day6").prop("checked", false);
-            $("#open6").val('09:00');
-            $("#close6").val('18:00');
-        };
-
-        // DOMINGO hide/show input hour 
-        document.getElementById('is_all_day7').onchange = function() {
-            document.getElementById('sched7').style.display = this.checked ? 'none' : 'block';
-            $("#is_closed7").prop("checked", false);
-            $("#open7").val('00:00');
-            $("#close7").val('24:00');
-        };
-        document.getElementById('is_closed7').onchange = function() {
-            document.getElementById('sched7').style.display = this.checked ? 'none' : 'block';
-            $("#is_all_day7").prop("checked", false);
-            $("#open7").val('09:00');
-            $("#close7").val('18:00');
-        };
-    });
-
-    $(document).ready(function() {
-        $("#myTab").click(function() {
-            $("#formAlert").hide();
-        });
-    });
-
-    $(document).ready(function() {
-        $(function(){
-            $('#btn-primary').click(function() {
-                //alert( $('.nav-tabs .active > a').attr('href') );
-
-                var tab = $('.nav-tabs .active > a').attr('href'); 
-                
-                if (tab=="#alldays") {
-                    $("#hour_price2").val(null);
-                    $("#hour4_price2").val(null);
-                    $("#hour8_price2").val(null);
-                    $("#month_price2").val(null);
-
-                    $("#hour_price3").val(null);
-                    $("#hour4_price3").val(null);
-                    $("#hour8_price3").val(null);
-                    $("#month_price3").val(null);
-                } else if (tab=="#alternateprices") {
-                    $("#formAlert").hide();
-
-                    if ( ($("#hour_price2").val()=="" && $("#hour_price3").val()!="") || ($("#hour_price2").val()!="" && $("#hour_price3").val()=="") ) {
-                        
-                        $("#formAlert").slideDown(400); 
-
-                    } else if ( ($("#hour4_price2").val()=="" && $("#hour4_price3").val()!="") || ($("#hour4_price2").val()!="" && $("#hour4_price3").val()=="") ) {
-                        
-                        $("#formAlert").slideDown(400); 
-
-                    } else if ( ($("#hour8_price2").val()=="" && $("#hour8_price3").val()!="") || ($("#hour8_price2").val()!="" && $("#hour8_price3").val()=="") ) {
-                        
-                        $("#formAlert").slideDown(400); 
-
-                    } else if ( ($("#month_price2").val()=="" && $("#month_price3").val()!="") || ($("#month_price2").val()!="" && $("#month_price3").val()=="") ) {
-                        
-                        $("#formAlert").slideDown(400); 
-                    }
-                        
-                    $("#hour_price1").val(null);
-                    $("#hour4_price1").val(null);
-                    $("#hour8_price1").val(null);
-                    $("#month_price1").val(null);
-                }
-
-                $(".alert").find(".close").on("click", function (e) {
-                    e.stopPropagation(); 
-                    e.preventDefault();   
-                    $(this).closest(".alert").slideUp(400);  
-                });
-       
-            });
-        });
-    });
-
+<script async defer
+        src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjGoTuUHrw1uzD0n-fOEq7URdFA1ALbcE&callback=initMap&libraries=places">
 </script>
+
+<script src="{{ asset('/js/space_register_validation.js') }}"></script>
 <script src="{{ asset('/js/jquery.easing.min.js') }}"></script>
 <script src="{{ asset('/js/scrolling-nav.js') }}"></script>
 <script src="{{ asset('/js/dropzone/dropzone.js') }}"></script>
 
+<script type="text/javascript">
+$(document).ready(function() {
+        $('#space_type_select').change(function(){
 
+            var spacetype=$('#space_type_select').val();
+
+            var url = '{{ route("showCheckList", ":id") }}';
+            url = url.replace(':id', spacetype);
+
+            $('div.space_checklist_table-container').fadeOut();
+            $('div.space_checklist_table-container').load(url, function() {
+                    $('div.space_checklist_table-container').fadeIn();
+                });
+            });
+    });
+</script>
 
 <script>
 Dropzone.autoDiscover = false;
@@ -1125,7 +915,6 @@ $( document ).ready(function () {
                 console.log("success > " + file.name);
             });
 
-
         },
 
         error: function(file, response) {
@@ -1149,10 +938,6 @@ $( document ).ready(function () {
             $("#photoCounter").text( "(" + photo_counter + ")");
         }
 
-
-
-
-
     };
 
     var uploader = document.querySelector('#mydropzone');
@@ -1160,45 +945,6 @@ $( document ).ready(function () {
 
 
   });
-</script>
-
-<script>
-
-    $(document).ready(function() {
-        $('#space_type_select').change(function(){
-
-                var country=$('#space_type_select').val();
-
-                //alert(country);
-
-                var url = '{{ route("showCheckList", ":id") }}';
-                url = url.replace(':id', country);
-
-                //alert(value);
-                $('div.space_checklist_table-container').fadeOut();
-                $('div.space_checklist_table-container').load(url, function() {
-                        $('div.space_checklist_table-container').fadeIn();
-                    });
-
-                // $.ajax({
-                // type: "post",
-                // url: "AA/BB", // path to function
-                // cache: false,               
-                // data: { country: country},
-                // success: function(val){                     
-                // try{     
-                // }catch(e) {     
-                //     alert('Exception while request..');
-                // }   
-
-                // },
-                // error: function(){                      
-                //     alert('Error while request..');
-                // }
-
-                //     });
-                });
-        });
 </script>
 
 
