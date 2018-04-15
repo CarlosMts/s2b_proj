@@ -6,6 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
     <title>{{ config('app.name', 'Laravel') }}</title>
 
     <!-- Fonts -->
@@ -25,7 +28,7 @@
     <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
   <![endif]-->
 
-@include('main.header2')
+    @include('main.header2')
 </head>
 
 <body>
@@ -105,12 +108,12 @@
 
                     </div>
 
+                    <form id="contactForm1" method="GET" action="/search" accept-charset="UTF-8" class="form-wrapper cf" role="search">
                     
-                    {!! Form::open(['method'=>'GET','url'=>'search','class'=>'form-wrapper cf','role'=>'search'])  !!}
                         <div class="row">
 
                             <div class="col-sm-4" style="padding-right:0px">
-                                <input class="input-space-city" name="search_name" type="text" id="name" ng-model="searchData.name" placeholder="{{ trans('homepage.search_city') }}"> </div>
+                                <input class="input-space-city" name="search_city" type="text" id="sp_city" ng-model="searchData.name" placeholder="{{ trans('homepage.search_city') }}"> </div>
 
                             <div class="col-sm-3" style="padding-left:0px; padding-right:0px">
 
@@ -126,7 +129,7 @@
                                         </li>
                                     </ul>  -->
 
-                                    <select name="type_select">
+                                    <select name="type_select" id="sp_type">
                                         <option class="type_gray" value="" disabled selected>{{ trans('homepage.search_spacetype') }}</option>
                                         <option value="all">All</option>
                                         @foreach ($spacetypes as $key => $sp)
@@ -151,7 +154,7 @@
 
                         </div>
 
-                    {!! Form::close() !!}
+                    </form>
 
                 </div>
 
@@ -418,10 +421,10 @@
 
         </div>
 
-<!-- Return to Top -->
-<a href="javascript:" id="return-to-top"><i class="icon-chevron-up"></i></a>
+        <!-- Return to Top -->
+        <a href="javascript:" id="return-to-top"><i class="icon-chevron-up"></i></a>
 
-@include('main.footer')
+        @include('main.footer')
 
     </div>
 
@@ -449,6 +452,29 @@
     <script src="{{ asset('js/language.js') }}"></script>
     <script src="{{ asset('js/scrolling-nav.js') }}"></script>
     <script src="{{ asset('js/main.js') }}"></script>
+
+    <script type="text/javascript">
+        var frm = $('#contactForm1');
+
+        frm.submit(function (e) {
+
+            e.preventDefault();
+            var name = $('#sp_city').val(); 
+            var type = $('#sp_type').val(); 
+
+            var url = '{{ route("search", [":name", ":type"] ) }}';
+            url = url.replace(':name', name);
+            url = url.replace(':type', type);
+
+            window.location.assign(url);
+        });
+    </script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (window.location.href.indexOf('#_=_') > 0) {
+            window.location = window.location.href.replace(/#.*/, '');
+        }});
+    </script>
 </body>
 
 </html>

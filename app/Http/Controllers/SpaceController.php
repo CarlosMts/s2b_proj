@@ -266,41 +266,103 @@ class SpaceController extends Controller
 
     }
 
-    public function findSpaces()
+    public function findSpaces($city, $type)
     {
-        /*return view('search')->with('name','Porto');*/
-        /*Space::where('name', 'LIKE', "%Porto%")->get();*/
+        $currentspacetype = DB::table('space_types')
+            -> select('id', 'name')
+            -> where('space_types.id', '=', $type )
+            -> get();
 
-        // $spaces = Space::where('name', 'LIKE', "%$name%")
-        //     ->orderBy('name')
-        //     ->paginate(20);
-
-        // return view('search')->with(array('list'=>$spaces));
-
-        $space_name = \Request::get('search_name');
-        $space_type = \Request::get('type_select');
-
-        //JOIN PARA TRAZER IMAGENS, CHECKLIST, COMPANY, PRICE, SCHEDULE ETC.....
-        // $spaces = Space::where('name', 'LIKE', '%'.$search.'%')
-        //     -> OrderBy('id')->Paginate(10);
-
+        $spacetypes = DB::table('space_types')
+            -> select('id', 'name')
+            -> where('space_types.id', '!=', $type )
+            -> get();
 
         $spaces = DB::table('spaces')
-            -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
-            //-> join('space_images', 'spaces.id', '=', 'space_images.space_id')
-            -> select('spaces.id','space_types.short_name','spaces.name','spaces.city')
-            -> where('spaces.name', 'LIKE', '%'.$space_name.'%')
+            ->join('space_types', function($join) use ($type)
+                    {
+                        $join->on('space_types.id', '=', 'spaces.type_id')
+                             ->on('space_types.id', '=', DB::raw($type));
+
+                    })
+            -> select('spaces.id','space_types.short_name','spaces.name','spaces.city','spaces.lat','spaces.lng')
+            -> where('spaces.city', 'LIKE', '%'.$city.'%')
             -> OrderBy('spaces.id')->Paginate(20);
+
+        $spaceprices = DB::table('spaces')
+            -> join('space_prices', 'spaces.id', '=', 'space_prices.space_id')
+            ->join('space_types', function($join) use ($type)
+                {
+                    $join->on('space_types.id', '=', 'spaces.type_id')
+                         ->on('space_types.id', '=', DB::raw($type));
+
+                })
+            -> select('spaces.id', 'space_prices.hour', 'space_prices.hour4', 'space_prices.hour8', 'space_prices.month', DB::raw('min(space_prices.type) as lowesttype') )
+            -> where('spaces.city', 'LIKE', '%'.$city.'%')
+            -> where('space_prices.hour', '>', 0)
+            -> orWhere('space_prices.hour4', '>', 0)
+            -> orWhere('space_prices.hour8', '>', 0)
+            -> orWhere('space_prices.month', '>', 0)
+            ->groupBy('spaces.id')
+             ->orderBy('spaces.id')
+             ->get();
 
         $spaceimages = DB::table('spaces')
             -> join('space_images', 'spaces.id', '=', 'space_images.space_id')
+            ->join('space_types', function($join) use ($type)
+                {
+                    $join->on('space_types.id', '=', 'spaces.type_id')
+                         ->on('space_types.id', '=', DB::raw($type));
+
+                })
             -> select('spaces.id','space_images.img_thumb')
-            -> where('spaces.name', 'LIKE', '%'.$space_name.'%')
+            -> where('spaces.city', 'LIKE', '%'.$city.'%')
             ->get();
 
+        $count_spaces = count($spaces);
+        
+        if($count_spaces >= 1)
+            return view('search', ['currentspacetype'=>$currentspacetype, 'spacetypes'=>$spacetypes, 'list'=>$spaces, 'listimages'=>$spaceimages, 'search_city'=>$city, 'count_spaces'=>$count_spaces, 'spaceprices'=>$spaceprices ] )->withDetails($spaces);
+        else return view('search', ['currentspacetype'=>$currentspacetype, 'spacetypes'=>$spacetypes, 'list'=>$spaces, 'listimages'=>$spaceimages, 'search_city'=>$city, 'count_spaces'=>$count_spaces, 'spaceprices'=>$spaceprices ] )->withMessage('No details found for "'. $city .'". Try to search again!');
 
-        return view('search', ['list'=>$spaces, 'listimages'=>$spaceimages]);
     }
+
+    public function refreshSearchMap()
+    {
+        $space_name = Input::get('name');
+        $NElat = Input::get('NElat');
+        $NElng = Input::get('NElat');
+        $SWlat = Input::get('SWlat');
+        $SWlng = Input::get('SWlng');
+
+        //return json_encode($NElat);
+
+        //$NElat = $request->input('NElat');
+
+        //dd($request);
+
+        $spaces = DB::table('spaces')
+             -> join('space_types', 'spaces.type_id', '=', 'space_types.id')
+             -> select('spaces.id','space_types.short_name','spaces.name','spaces.city','spaces.lat','spaces.lng')
+             -> where('spaces.name', 'LIKE', '%'.$space_name.'%')
+             -> whereBetween('spaces.lat', [$SWlat, $NElat])
+             -> OrderBy('spaces.id')->Paginate(20);
+
+             $data = $spaces->get();
+        // $spaceimages = DB::table('spaces')
+        //     -> join('space_images', 'spaces.id', '=', 'space_images.space_id')
+        //     -> select('spaces.id','space_images.img_thumb')
+        //     -> where('spaces.name', 'LIKE', '%'.$space_name.'%')
+        //     //-> whereBetween('spaces.lat', [$SWlat, $NElat])
+        //     -> OrderBy('spaces.id')
+        //     ->get();
+
+
+        // return view('search-list', ['list'=>$spaces, 'listimages'=>$spaceimages] );
+
+        return view('search-list-teste')->with('space_name', $data);
+    }
+
 
     public function adminSearch()
     {

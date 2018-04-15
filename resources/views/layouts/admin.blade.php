@@ -103,17 +103,22 @@
                 </ul>
               </li>
               @endif
-              <li><a href="{{ route('profile') }}"><i class="fa fa-book"></i> <span>My Profile</span></a></li>
-              <li><a href="{{ route('myspaces') }}"><i class="fa fa-book"></i> <span>My Spaces</span></a></li>
-              <li><a href="#"><i class="fa fa-book"></i> <span>My Reservations</span></a></li>
+              <li><a href="{{ route('profile') }}"><i class="fa fa-user"></i> <span>Profile</span></a></li>
+              @if (Auth::user()->haveSpaces==1)
+                <li><a href="{{ route('myspaces') }}"><i class="fa fa-home"></i> <span>My Spaces</span></a></li>
+                <li><a href="{{ route('space-reservations') }}"><i class="fa fa-book"></i> <span>Space Reservations</span></a></li>
+              @endif
+              @if (Auth::user()->haveReservations==1)
+              <li><a href="{{ route('reservations') }}"><i class="fa fa-book"></i> <span>My Reservations</span></a></li>
+              @endif
               <li>
-                <a href="#">
-                  <i class="fa fa-calendar"></i> <span>Calendar</span>
-                </a>
-              </li>
-              <li>
-                <a href="#">
+                <a href="{{ route('chat') }}">
                   <i class="fa fa-envelope"></i> <span>Mailbox</span>
+                  @if ($newMessages > 0)
+                    <span class="pull-right-container">
+                      <small class="label pull-right bg-red">new</small>
+                    </span>
+                  @endif
                   <!-- <span class="pull-right-container">
                     <small class="label pull-right bg-yellow">12</small>
                     <small class="label pull-right bg-green">16</small>
@@ -121,7 +126,6 @@
                   </span> -->
                 </a>
               </li>
-              <li><a href="#"><i class="fa fa-book"></i> <span>Documentation</span></a></li>
             </ul>
           </section>
           <!-- /.sidebar-leftmenu -->
@@ -145,7 +149,7 @@
           -->
 
           <!-- Main content -->
-          <div class="admin-content">
+          <div class="admin-panel">
               @yield('content')
           </div>
           
@@ -294,6 +298,7 @@
 
         var url = '{{ route("refreshSpaceTypeChecklistTable", ":id") }}';
         url = url.replace(':id', value);
+        
 
         //alert(value);
         $('div.table-container').fadeOut();
@@ -332,6 +337,60 @@
     
 
 
+
+ </script>
+
+ <script type="text/javascript">
+
+$("#chat_user_list li").click(function() {
+
+    //get ID from li element clicked
+    var user_id = this.id;
+    var thread_id = this.querySelector("#last_thread_id").value;
+
+    $('#current_thread_id').val(thread_id);
+    
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('[name="_token"]').val()
+        }
+    });
+
+    $.ajax({
+        type: 'GET',
+        url: 'message/' + user_id,
+        data: {
+            'id': user_id
+        },
+        success: function (data) {
+            $('#chat-global').html(data);
+
+            var el = document.querySelector("#chat_user_list #badge"+ user_id);
+            if (el != null) {
+                el.style.display = 'none'; 
+            } 
+        }
+    });
+});
+
+
+$(document).on('click', '.btn_chat', function() {
+
+$.ajax({
+      type: 'POST',
+      url: 'writeMessage/',
+      data: {
+          '_token': $('input[name=_token]').val(),
+          'last_thread_id': $('#current_thread_id').val(),
+          'message': $('#textMessage').val()
+      },
+      success: function(data) {
+          $("#chat-global .message-box:last").after(data);
+          $('#textMessage').val('');
+      }
+  });
+});
 
  </script>
 

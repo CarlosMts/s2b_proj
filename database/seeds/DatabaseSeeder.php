@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
     {
         //call uses table seeder class
   		$this->call('SpaceTypeTableSeeder');
+        $this->call('HourTypesTableSeeder');
         //this message shown in your terminal after running db:seed command
         $this->command->info("Users table seeded :)");
        

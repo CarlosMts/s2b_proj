@@ -20,6 +20,14 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('avatar')->default('/images/avatars/avatar_placeholder.png');
             $table->string('password')->nullable();
+            $table->integer('contact');
+            $table->date('birthday');
+            $table->string('city');
+            $table->string('country');
+            $table->integer('NIF');
+            $table->string('company_name');
+            $table->string('business_area');
+            $table->string('position');
             $table->integer('haveSpaces')->default(0);
             $table->integer('haveReservations')->default(0);
             $table->integer('haveFavourites')->default(0);

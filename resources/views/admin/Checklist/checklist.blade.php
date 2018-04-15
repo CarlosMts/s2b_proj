@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @section('content')
-
+<div class="admin-content">
 <h2>Checklist</h2>
 
 <form class="form-horizontal" role="form" method="POST" action="{{ route('spacetypechecklist.store') }}" enctype="multipart/form-data">
@@ -63,5 +63,5 @@
 </form>
 
 
- 
+</div> 
 @endsection

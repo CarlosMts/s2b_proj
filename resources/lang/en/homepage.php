@@ -14,7 +14,7 @@ return [
     'failed' => 'These credentials do not match our records.',
     'throttle' => 'Too many login attempts. Please try again in :seconds seconds.',
     'session_user_name' => 'Hi, ',
-    'search_city' => 'City or workspace name',
+    'search_city' => 'City name',
     'search_spacetype' => 'Type of Space',
     'search_date' => 'Date',
     'search_bt_find' => 'Find',

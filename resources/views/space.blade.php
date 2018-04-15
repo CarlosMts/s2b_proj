@@ -1,7 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+
 <script src="{{ asset('js/jssor.slider-25.0.6.min.js') }}"></script>
+
+
+
 <script type="text/javascript">
         jQuery(document).ready(function ($) {
 
@@ -40,19 +44,17 @@
         });
     </script>
 
-<div class="space-container">
-
-	<div id="jssor_1" style="position:relative;margin:0 auto;top:0px;left:0px;width:980px;height:350px;overflow:hidden;visibility:hidden;">
+<div id="jssor_1" style="position:relative;margin:0 auto;top:0px;left:0px;width:980px;height:350px;overflow:hidden;visibility:hidden;">
         <!-- Loading Screen -->
         <div data-u="loading" class="jssorl-004-double-tail-spin" style="position:absolute;top:0px;left:0px;text-align:center;background-color:rgba(0,0,0,0.7);"> 
         </div>
         <div data-u="slides" style="cursor:default;position:relative;top:0px;left:0px;width:980px;height:380px;overflow:hidden;">
             
-            	@foreach ($spaceimages as $space_images)
-            		<div>
-					  	<img data-u="image" src="{{ $space_images->img_name }}">
-					</div>
-			  	@endforeach
+                @foreach ($spaceimages as $space_images)
+                    <div>
+                        <img data-u="image" src="{{ $space_images->img_name }}">
+                    </div>
+                @endforeach
         </div>
         <!-- Bullet Navigator -->
         <div data-u="navigator" class="jssorb051" style="position:absolute;bottom:12px;right:12px;" data-autocenter="1" data-scale="0.5" data-scale-bottom="0.75">
@@ -73,62 +75,82 @@
                 <polyline class="a" points="4960,1920 11040,8000 4960,14080 "></polyline>
             </svg>
         </div>
-    </div>
-    <!-- #endregion Jssor Slider End -->
+</div>
+<!-- #endregion Jssor Slider End -->
 
-    <div id="space-container-inside">
+<div id="space-container">
+
          <div id="reserve-box">
             <div class="header">
                 A sua reserva
             </div>
 
-            <div id="reserve-box-container">
-                <div class="body">
-                    <table id="reservation-table" class="table table-list">
-                        <thead>
-                        <tr>
-                            <th class="col-text"  style="text-align: left;">Duração</th>
-                            <th style="text-align: center;">Qtd</th>
-                            <th style="text-align: right;">Valor</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>1h</td>
-                            <td style="text-align: center;">3</td>
-                            <td style="text-align: right;">14€</td>
-                        </tr>
-                        <tr>
-                            <td>pack 4h</td>
-                            <td style="text-align: center;">1</td>
-                            <td style="text-align: right;">14€</td>
-                        </tr>
-                        <tr>
-                            <td>pack 8h</td>
-                            <td style="text-align: center;">3</td>
-                            <td style="text-align: right;">45€</td>
-                        </tr>
-                        <tr>
-                            <td>mês</td>
-                            <td style="text-align: center;">0</td>
-                            <td style="text-align: right;"></td>
-                        </tr>
-                        <tr style="font-weight: 700;border-top: 1px solid #dce0e0;color:#000;">
-                            <td style="font-size: 13pt;">Total</td>
-                            <td></td>
-                            <td style="text-align: right;font-size: 13pt;">€73</td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div class="body">
+                <div id="reserve-box-container">
+                    <div id="reserve-box-date-start">
+                         <input class="input-data_reservation" id="datebegin" name="date" placeholder="Data Início" type="text"/>
+                    </div>
 
-                <div class="footer">
-                    <input type="button" class="reservation-button" value="Reservar">
+                    <div id="reserve-box-date-end">
+                         <input class="input-data_reservation" id="dateend" name="date" placeholder="Data Fim" type="text"/>
+                    </div>
+                   
+                    <div class="reserve-box-div">
+                          <select id="sp_hour_type">
+                                <option value="">Select hour type</option>
+                            @foreach ($spaceprices as $prices)
+                                @if ($prices->type == 1 && $prices->have_price_check > 0 )
+                                    @if ($prices->hour != 'n/a'  )
+                                        <option value="1">Hourly</option>
+                                    @endif
+                                    @if ($prices->hour4 != 'n/a' )
+                                        <option value="2">4 hours pack</option>
+                                    @endif
+                                    @if ($prices->hour8 != 'n/a' )
+                                        <option value="3">8 hours pack</option>
+                                    @endif
+                                    @if ($prices->month != 'n/a' )
+                                        <option value="4">month</option>
+                                    @endif
+                                @elseif ($prices->type == 2 && $prices->have_price_check > 0 )
+                                    @if ($prices->hour != 'n/a'  )
+                                        <option value="1">Hourly</option>
+                                    @endif
+                                    @if ($prices->hour4 != 'n/a' )
+                                        <option value="2">4 hours pack</option>
+                                    @endif
+                                    @if ($prices->hour8 != 'n/a' )
+                                        <option value="3">8 hours pack</option>
+                                    @endif
+                                    @if ($prices->month != 'n/a' )
+                                        <option value="4">month</option>
+                                    @endif
+                                @endif
+                            @endforeach
+                          </select>
+                    </div>
+                    
+                    <div class="reserve-box-div">
+                        <div class="checkbox checkbox-info checkbox-circle">
+                            <!-- CHECKBOX -->
+                            <input id="is_checked" name="reserve_weekend" type="checkbox" value="false">
+                            {{ Form::label('is_checked', 'Weekend included?') }}
+                        </div>
+                    </div>
+
+                    <div class="reserve-box-div" style="text-align:right; margin-bottom: 25px;">
+                        <p>Total</p>
+                        <input type="text" disabled="disabled" name="reservation_price" id="reservation_price" value="">
+                    </div>
+
+                    <div class="footer">
+                        <input type="button" id="reservation_make" class="reservation-button" value="Reservar" data-toggle="modal" data-space="{{ $spaceinfo[0]->id }}" data-dataInicio="" data-dataFim="" data-hourType="" data-weekend="0" data-price="">
+                    </div>
                 </div>
             </div>
 
         </div>
-    </div> 
+    
 
         <section id="space-info-section" class="space-info-section">
             <div id="space-container-inside">
@@ -144,7 +166,6 @@
         <section id="space-about-section" class="space-about-section">
             <div id="space-container-inside">
             <h2>About this space</h2> 
-            
 
             <div class="row" style="padding:20px 0;">
                 @foreach ($spaceimages as $space_images)
@@ -195,7 +216,7 @@
                 @else
                     <li>
                         <div class="input-w">
-                            <span class="glyphicon glyphicon-ok-circle"></span> {{ $checklist->description }} {{ $checklist->value }} {{ $checklist->label }}
+                            <span class="glyphicon glyphicon-ok-circle"></span> {{ $checklist->description }} <span style="font-size:13px;color:#A0A0A0;">{{ $checklist->value }} {{ $checklist->label }}</span>
                         </div>
                     </li>  
                     
@@ -255,45 +276,71 @@
                     @foreach ($spaceprices as $prices)
                         @if ($prices->type == 1 && $prices->have_price_check > 0 )
                             <p>Todos os dias</p>
+                            <input id="price_type" name="price_type" type="hidden" value="{{ $prices->type }}">
                             <div class="price_square">
-                                <p>{{ $prices->hour }}</br> <span style="font-size:9px;font-weight: 300 !important;">€ / hour</span></p>
+                                <p>
+                                <input type="text" disabled="disabled" name="t1_1" id="t1_1" value="{{ $prices->hour }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / hour</span></p>
                             </div>
                             <div class="price_square">
-                                <p>{{ $prices->hour4 }}</br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 4h</span></p>
+                                <p>
+                                <input type="text" disabled="disabled" name="t1_2" id="t1_2" value="{{ $prices->hour4 }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 4h</span></p>
                             </div>
                             <div class="price_square">
-                                <p>{{ $prices->hour8 }}</br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 8h</span></p>
+                                <p>
+                                <input type="text" disabled="disabled" name="t1_3" id="t1_3" value="{{ $prices->hour8 }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 8h</span></p>
                             </div>
                             <div class="price_square">
-                                <p>{{ $prices->month }}</br> <span style="font-size:9px;font-weight: 300 !important;">€ / month</span></p>
+                                <p>
+                                <input type="text" disabled="disabled" name="t1_4" id="t1_4" value="{{ $prices->month }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / month</span></p>
                             </div>
                         @elseif ($prices->type == 2 && $prices->have_price_check > 0 )
                             <p>Semana</p>
+                            <input id="price_type" name="price_type" type="hidden" value="{{ $prices->type }}">
                             <div class="price_square">
-                                {{ $prices->hour }}€</br> hour
+                                <p>
+                                <input type="text" disabled="disabled" name="t2_1" id="t2_1" value="{{ $prices->hour }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / hour</span></p>
                             </div>
                             <div class="price_square">
-                                {{ $prices->hour4 }}€</br> pack 4h
+                                <p>
+                                <input type="text" disabled="disabled" name="t2_2" id="t2_2" value="{{ $prices->hour4 }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 4h</span></p>
                             </div>
                             <div class="price_square">
-                                {{ $prices->hour8 }}€</br> pack 8h
+                                <p>
+                                <input type="text" disabled="disabled" name="t2_3" id="t2_3" value="{{ $prices->hour8 }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 8h</span></p>
                             </div>
                             <div class="price_square">
-                                {{ $prices->month }}€</br> month
+                                <p>
+                                <input type="text" disabled="disabled" name="t2_4" id="t2_4" value="{{ $prices->month }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / month</span></p>
                             </div>
-                        @elseif ($prices->type == 2 && $prices->have_price_check > 0 )
+                        @elseif ($prices->type == 3 && $prices->have_price_check > 0 )
                             <p>Fim de Semana</p>
                             <div class="price_square">
-                                {{ $prices->hour }}€</br> hour
+                                <p>
+                                <input type="text" disabled="disabled" name="t3_1" id="t3_1" value="{{ $prices->hour }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / hour</span></p>
                             </div>
                             <div class="price_square">
-                                {{ $prices->hour4 }}€</br> pack 4h
+                                <p>
+                                <input type="text" disabled="disabled" name="t3_2" id="t3_2" value="{{ $prices->hour4 }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 4h</span></p>
                             </div>
                             <div class="price_square">
-                                {{ $prices->hour8 }}€</br> pack 8h
+                                <p>
+                                <input type="text" disabled="disabled" name="t3_3" id="t3_3" value="{{ $prices->hour8 }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / pack 8h</span></p>
                             </div>
                             <div class="price_square">
-                                {{ $prices->month }}€</br> month
+                                <p>
+                                <input type="text" disabled="disabled" name="t3_4" id="t3_4" value="{{ $prices->month }}">
+                                </br> <span style="font-size:9px;font-weight: 300 !important;">€ / month</span></p>
                             </div>
                         @endif
                     @endforeach
@@ -304,11 +351,6 @@
         
         </section>
 
-        <!-- <section id="space-calendar-section">
-            <div id="space-container-inside">
-            </div>
-        </section> -->
-
         @if ($spacecomments != null)
         <section id="space-comments-section">
             <div id="space-container-inside">
@@ -316,7 +358,7 @@
             </div>
         </section>
         @endif
-
+</div>
         <section id="space-map-section">
             <div id="spaceMap"></div>
             <div>
@@ -341,47 +383,15 @@
                 </div>
             </div>
         </div>
+
+        </div>
         @endif
-    
-</div>
 
-<script>
-function openModal() {
-  document.getElementById('galleryModal').style.display = "block";
-}
-
-function closeModal() {
-  document.getElementById('galleryModal').style.display = "none";
-}
-
-var slideIndex = 1;
-showSlides(slideIndex);
-
-function plusSlides(n) {
-  showSlides(slideIndex += n);
-}
-
-function currentSlide(n) {
-  showSlides(slideIndex = n);
-}
-
-function showSlides(n) {
-  var i;
-  var slides = document.getElementsByClassName("mySlides");
-  var dots = document.getElementsByClassName("demo");
-  var captionText = document.getElementById("caption");
-  if (n > slides.length) {slideIndex = 1}
-  if (n < 1) {slideIndex = slides.length}
-  for (i = 0; i < slides.length; i++) {
-    slides[i].style.display = "none";
-  }
-  for (i = 0; i < dots.length; i++) {
-    dots[i].className = dots[i].className.replace(" active", "");
-  }
-  slides[slideIndex-1].style.display = "block";
-  dots[slideIndex-1].className += " active";
-  captionText.innerHTML = dots[slideIndex-1].alt;
-}
+<!-- Scripts -->
+<script type="text/javascript">
+$(function() {
+  $('select').selectric();
+});
 </script>
 
 <script src="{{ asset('/js/google-maps-space.js') }}"></script>
@@ -389,6 +399,9 @@ function showSlides(n) {
     src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBjGoTuUHrw1uzD0n-fOEq7URdFA1ALbcE&callback=initMapSpace">
 </script>
 
+<script src="{{ asset('/js/reserve_box_move.js') }}"></script>
+
+@include('modals.reservation_make')
 
 
 @endsection

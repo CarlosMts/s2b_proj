@@ -2,7 +2,7 @@
 
 @section('content')
 
-
+<div class="admin-content">
 <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
@@ -67,5 +67,5 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
+</div>
 @endsection

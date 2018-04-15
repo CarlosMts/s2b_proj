@@ -102,11 +102,18 @@ class RegisterController extends Controller
 
         if(!$socialProvider)
         {
+            $user_pic="";
+            if ($socialUser->avatar == null) {
+                $user_pic = "/images/avatars/avatar_placeholder.png";
+            } else {
+                $user_pic = str_replace('http://','https://',$socialUser->avatar);
+            }
+            
             //create a new user
             $user = User::Create([
                 'name' => $socialUser->name,
                 'email' => $socialUser->email,
-                'avatar' => str_replace('http://','https://',$socialUser->avatar),
+                'avatar' => $user_pic,
                 ]);
 
             $user->socialProviders()->create(
